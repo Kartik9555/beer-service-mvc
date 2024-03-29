@@ -1,5 +1,6 @@
 package com.example.practice.beerservicemvc.controller;
 
+import com.example.practice.beerservicemvc.config.SecurityConfig;
 import com.example.practice.beerservicemvc.model.CustomerDTO;
 import com.example.practice.beerservicemvc.service.CustomerService;
 import com.example.practice.beerservicemvc.service.impl.CustomerServiceImpl;
@@ -15,9 +16,12 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.example.practice.beerservicemvc.controller.BeerControllerTest.PASSWORD;
+import static com.example.practice.beerservicemvc.controller.BeerControllerTest.USERNAME;
 import static com.example.practice.beerservicemvc.controller.CustomerController.CUSTOMER_PATH;
 import static com.example.practice.beerservicemvc.controller.CustomerController.CUSTOMER_PATH_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -37,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CustomerController.class)
+@Import(SecurityConfig.class)
 class CustomerControllerTest {
 
     @Autowired
@@ -68,6 +74,7 @@ class CustomerControllerTest {
         given(customerService.findAll()).willReturn(customerServiceImpl.findAll());
 
         mockMvc.perform(get(CUSTOMER_PATH)
+                .with(httpBasic(USERNAME, PASSWORD))
                 .accept(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON))
@@ -81,6 +88,7 @@ class CustomerControllerTest {
         given(customerService.findById(customer.getId())).willReturn(Optional.of(customer));
 
         mockMvc.perform(get(CUSTOMER_PATH_ID, customer.getId())
+                .with(httpBasic(USERNAME, PASSWORD))
                 .accept(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON))
@@ -98,6 +106,7 @@ class CustomerControllerTest {
         given(customerService.addCustomer(any(CustomerDTO.class))).willReturn(customerServiceImpl.findAll().get(1));
 
         mockMvc.perform(post(CUSTOMER_PATH)
+                .with(httpBasic(USERNAME, PASSWORD))
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(customer))
@@ -113,6 +122,7 @@ class CustomerControllerTest {
         given(customerService.updateCustomer(any(), any())).willReturn(Optional.of(customer));
 
         mockMvc.perform(put(CUSTOMER_PATH_ID, customer.getId())
+            .with(httpBasic(USERNAME, PASSWORD))
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(customer))
@@ -129,6 +139,7 @@ class CustomerControllerTest {
         given(customerService.deleteById(any())).willReturn(true);
 
         mockMvc.perform(delete(CUSTOMER_PATH_ID, customer.getId())
+            .with(httpBasic(USERNAME, PASSWORD))
             .accept(APPLICATION_JSON)
             .contentType(APPLICATION_JSON)
         ).andExpect(status().isNoContent());
@@ -148,6 +159,7 @@ class CustomerControllerTest {
         customerMap.put("name", "New name");
 
         mockMvc.perform(patch(CUSTOMER_PATH_ID, customer.getId())
+            .with(httpBasic(USERNAME, PASSWORD))
             .accept(APPLICATION_JSON)
             .contentType(APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(customerMap))
