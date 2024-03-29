@@ -52,11 +52,11 @@ public class BeerController {
 
 
     @PostMapping(BEER_PATH)
-    public ResponseEntity<BeerDTO> addBeer(@Validated @RequestBody BeerDTO beer) {
+    public ResponseEntity<HttpStatus> addBeer(@Validated @RequestBody BeerDTO beer) {
         BeerDTO savedBeer = beerService.addBeer(beer);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.LOCATION, BEER_PATH + "/" + savedBeer.getId());
-        return new ResponseEntity<>(savedBeer, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
 

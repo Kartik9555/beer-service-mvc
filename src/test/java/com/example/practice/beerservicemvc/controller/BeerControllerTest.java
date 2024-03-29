@@ -134,10 +134,7 @@ class BeerControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beer))
             ).andExpect(status().isCreated())
-            .andExpect(content().contentType(APPLICATION_JSON))
             .andExpect(header().exists(HttpHeaders.LOCATION));
-
-
     }
 
 
